@@ -1,3 +1,70 @@
+🚀 Crypto Price Predictor - Backend Setup Guide
+
+This guide will walk you through setting up the backend for the Crypto Price Predictor app, including installing Ollama and downloading the DeepSeek-R1-1.5B model.
+🛠 Prerequisites
+
+Before you start, ensure you have the following installed:
+
+    Python 3.8+
+    pip (Python package manager)
+    Flask
+    Ollama (For AI-powered predictions)
+
+📌 1. Install Ollama
+
+Ollama is required to run AI models locally.
+Windows
+
+    Download Ollama from the official website:
+    👉 https://ollama.com/download
+    Run the installer and follow the setup instructions.
+
+Mac (Intel or Apple Silicon)
+
+brew install ollama
+
+Linux (Debian/Ubuntu)
+
+curl -fsSL https://ollama.com/install.sh | sh
+
+Once installed, verify by running:
+
+ollama --version
+
+📌 2. Download DeepSeek-R1-1.5B Model
+
+To use AI predictions, you need to download the DeepSeek-R1-1.5B model.
+
+Run the following command:
+
+ollama pull deepseek-r1:1.5b
+
+This will download and prepare the model for use.
+📌 3. Install Python Dependencies
+
+Make sure to install the required Python packages:
+
+pip install flask flask-cors requests
+
+📌 4. Run the Backend
+
+After setting up Ollama and installing dependencies, start the Flask backend:
+
+python backend.py
+
+This will start a local server at http://127.0.0.1:5000/api/ada-data.
+📌 5. Verify Everything Works
+
+Once the backend is running, test it by opening your browser or using cURL:
+
+curl http://127.0.0.1:5000/api/ada-data
+
+You should receive JSON data containing real-time ADA/USDT prices from Binance, CoinGecko, and CoinMarketCap, along with an AI prediction.
+✅ You're Ready to Go!
+
+Your backend is now set up and running. You can now fetch live crypto data and AI-powered predictions. 🚀
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
