@@ -1,101 +1,73 @@
-import Image from "next/image";
+"use client"; 
+
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Button } from "./components/ui/button";
+import { Card, CardContent } from "./components/ui/card";
+import { Loader } from "lucide-react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [adaData, setAdaData] = useState<any>(null);
+  const [loading, setLoading] = useState(false); // Initially not loading
+  const [hasStartedPrediction, setHasStartedPrediction] = useState(false); // State to track if prediction has started
+  const [formattedPrediction, setFormattedPrediction] = useState<string>("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // Function to fetch data when the button is pressed
+  const fetchData = async () => {
+    setLoading(true);
+    setHasStartedPrediction(true); // Update to reflect that prediction request started
+    try {
+      const response = await axios.get("http://127.0.0.1:5000/api/ada-data");
+      setAdaData(response.data);
+
+      // Filter out the <think> text and format it into separate lines
+      const predictionText = response.data.prediction.response;
+      const formattedText = predictionText.replace(/<think>/g, "\n<think>").split("\n").join("\n\n");
+
+      setFormattedPrediction(formattedText); // Set formatted prediction text
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
+      <h1 className="text-3xl font-bold mb-4">ADA/USDT Price Predictor</h1>
+
+      {/* If prediction hasn't started, show the intro text and the button */}
+      {!hasStartedPrediction ? (
+        <div className="flex flex-col items-center">
+          <p className="text-lg mb-4">Welcome to the ADA/USDT Price Prediction App! Press the button below to get the latest price and prediction data.</p>
+          <Button className="mt-4" onClick={fetchData}><p className="refresh">Start Prediction</p></Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      ) : (
+        // Once prediction starts or has been fetched, show the data and loading spinner
+        <>
+          {loading ? (
+            <Loader className="animate-spin text-blue-500" size={32} />
+          ) : (
+            <>
+              <Card className="p-6 bg-gray-800 text-white w-full max-w-md">
+                <CardContent>
+                  <p className="text-lg">Live Price: ${adaData?.live_data?.binance?.price}</p>
+                  <p className="text-sm">24h Change: {adaData?.live_data?.binance?.percent_change_24h}%</p>
+                  <p className="text-sm">Volume: {adaData?.live_data?.binance?.volume}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="p-6 bg-gray-700 text-white mt-4 w-full max-w-md">
+                <CardContent>
+                  <h2 className="text-xl font-semibold">Prediction</h2>
+                  <p className="text-lg whitespace-pre-line">{formattedPrediction}</p> {/* Display formatted prediction */}
+                </CardContent>
+              </Card>
+
+              <Button className="mt-4" onClick={fetchData}><p className="refresh">Refresh Data</p></Button>
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 }
